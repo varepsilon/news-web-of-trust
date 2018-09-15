@@ -11,7 +11,7 @@ from lib import Doc2Vec
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 
-document_storage = shelve.open('document_storage.cache')
+document_storage = {}
 
 class WebDocument:
     def __init__(self, url, content=None, summary=None, vector=None):
@@ -51,10 +51,6 @@ def add_new_doc(url, user, ranking):
         doc = WebDocument(url)
         document_storage[url] = {'doc': doc, 'ranking': {}}
     document_storage[url]['ranking'][user] = ranking
-    document_storage.sync()
-
-def get_storage():
-    return document_storage
 
 def get_similar_docs(this_doc_url, top_n):
     h = []
@@ -63,15 +59,15 @@ def get_similar_docs(this_doc_url, top_n):
     else:
         this_doc = WebDocument(this_doc_url)
     v1 = this_doc.vector
-    for stored in document_storage.values():
+    for key, stored in document_storage.items():
         that_doc = stored['doc']
         v2 = that_doc.vector
         sim = doc_to_vec.sim(v1, v2)
         if sim != 1:
-            heapq.heappush(h, (sim, stored))
+            heapq.heappush(h, (sim, key))
     top = heapq.nlargest(top_n, h)
     return [(sim, {
-        'doc': doc_info['doc'].toJSON(),
-        'ranking': json.loads(json.dumps(doc_info['ranking'])),
-        }) for sim, doc_info in top]
+        'doc': document_storage[key]['doc'].toJSON(),
+        'ranking': document_storage[key]['ranking'],
+        }) for sim, key in top]
 
