@@ -75,23 +75,31 @@ function ShowNewResults(data) {
 	fake_button.style.display = 'none';
 	can_trust_button.style.display = 'none';
 	var news = document.getElementById('results');
-	const markup = `
+	markup_result = `
 	<p>${data.result}</p>
-	<div class='center'>
-	<p style='color: #333333' class='similar'><i>Based on the similar articles...</i></p>
-	<div class='snippet ${data.doc[0].status}_snippet'>
-	<a href="${data.doc[0].url}">
-	<p>${data.doc[0].content}</p>
-	<p class='credit'><i>${data.doc[0].friend}</i></p>
-	</a>
-	</div>
-	<div class='snippet ${data.doc[1].status}_snippet'>
-	<a href="${data.doc[1].url}">
-	<p>${data.doc[1].content}</p>
-	<p class='credit'><i>${data.doc[1].friend}</i></p>
-	</a>
-	</div>
-	</div>
 	`
-	news.innerHTML = markup;
+	if (data.doc.length > 0) {
+		markup_1 = `
+		<div class='center'>
+		<p style='color: #333333' class='similar'><i>Based on the similar articles...</i></p>
+		<div class='snippet ${data.doc[0].status}_snippet'>
+		<a href="${data.doc[0].url}">
+		<p>${data.doc[0].content}</p>
+		<p class='credit'><i>${data.doc[0].friend}</i></p>
+		</a>
+		</div>`
+		markup_result += markup_1;
+		if (data.doc.length == 2) {
+			markup_2 = 
+			`<div class='snippet ${data.doc[1].status}_snippet'>
+			<a href="${data.doc[1].url}">
+			<p>${data.doc[1].content}</p>
+			<p class='credit'><i>${data.doc[1].friend}</i></p>
+			</a>
+			</div>
+			</div>`
+			markup_result += markup_2;
+		}
+	}
+	news.innerHTML = markup_result;
 }
