@@ -13,6 +13,10 @@ import gensim
 
 DEBUG = True
 
+WORD_2_VEC_DIM = 300  # has to match that of a pre-trained embeddings!
+DOC_WORDS = 60
+# use mean (True) or concatenation (False) for aggregating word vectors.
+DOC_2_VEC_USE_MEAN = True
 
 class Doc2Vec:
     def __init__(self, model_path):
@@ -24,7 +28,7 @@ class Doc2Vec:
         ''' Return the float vector corresponding to the string `document` '''
         word_vectors = []
         oov_words = set()
-        for word in nltk.tokenize.word_tokenize(document)[:60]:
+        for word in nltk.tokenize.word_tokenize(document)[:DOC_WORDS]:
             try:
                 word_vectors.append(self.model.wv[word])
             except KeyError:
@@ -32,9 +36,13 @@ class Doc2Vec:
                 continue
         if DEBUG:
             print('OOV words:', oov_words, file=sys.stderr)
-        # pad with zero vectors for short documents
-        word_vectors.extend([np.zeros(300) for i in range(60 - len(word_vectors))])
-        return np.concatenate(word_vectors)
+        if DOC_2_VEC_USE_MEAN:
+            return np.mean(word_vectors, axis=0)
+        else:
+            # pad with zero vectors for short documents
+            word_vectors.extend([np.zeros(WORD_2_VEC_DIM) for i \
+                    in range(DOC_WORDS - len(word_vectors))])
+            return np.concatenate(word_vectors)
 
     @staticmethod
     def sim(v1, v2):
