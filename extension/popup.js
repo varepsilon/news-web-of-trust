@@ -30,17 +30,17 @@ fake_button.onclick = function(element) {
 can_trust_button.onclick = function(element) {
 	chrome.tabs.query({active: true, lastFocusedWindow: true}, tab => {
 		var url_path = tab[0].url;
-		fetch('http://127.0.0.1:8000/storage', {
+		fetch('http://127.0.0.1:8000/ranked', {
 				method: 'PUT',
 				headers: {
 					"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
 				},
-				body: 'url=' + encodeURIComponent(url_path),
+				body: 'url=' + encodeURIComponent(url_path) + '&user=2',
 			})
 			.then(function(response) {
 				// Examine the text in the response
 				response.json().then(function(data) {
-					ShowResults(data);
+					ShowNewResults(data);
 				});
 			});
 	});
