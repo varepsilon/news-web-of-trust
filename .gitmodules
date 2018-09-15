@@ -1,3 +1,6 @@
 [submodule "testdata/FakeNewsNet"]
 	path = testdata/FakeNewsNet
 	url = https://github.com/KaiDMML/FakeNewsNet.git
+[submodule "extension/openpgpjs"]
+	path = extension/openpgpjs
+	url = https://github.com/openpgpjs/openpgpjs.git
