@@ -22,7 +22,7 @@ class StorageAccessor(Resource):
 class Voter(Resource):
     def put(self):
         try:
-            docs.add_new_doc(request.form['url'], request.form['user'], request.form['ranking'])
+            docs.add_new_doc(request.form['url'], int(request.form['user']), int(request.form['ranking']))
             return 'Success!'
         except:
             return 'Failed!\n{}'.format(traceback.format_exc())
@@ -41,12 +41,14 @@ class SimilarDocsAccessor(Resource):
     def put(self):
         doc = request.form['url']
         similar = docs.get_similar_docs(doc, 1000)
+        print('THE SIM', similar)
         root_user = int(request.form['user'])
         trusted_1 = docs.get_most_trusted_from_similar(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
         trusted_2 = docs.get_most_similar_from_trusted(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
         doc_results = []
         if trusted_1 is not None:
             doc_results.append(format_result(trusted_1))
+        print(trusted_1)
         if trusted_2 is not None and trusted_1[1]['url'] != trusted_2[1]['url']:
             doc_results.append(format_result(trusted_2))
 
