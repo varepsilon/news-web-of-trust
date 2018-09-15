@@ -44,16 +44,21 @@ class SimilarDocsAccessor(Resource):
         root_user = int(request.form['user'])
         trusted_1 = docs.get_most_trusted_from_similar(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
         trusted_2 = docs.get_most_similar_from_trusted(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
-        doc_result_1 = format_result(trusted_1)
-        doc_result_2 = format_result(trusted_2)
+        doc_results = []
+        if trusted_1 is not None:
+            doc_results.append(format_result(trusted_1))
+        if trusted_2 is not None and trusted_1[1]['url'] != trusted_2[1]['url']:
+            doc_results.append(format_result(trusted_2))
+
         outcome = 'Your friends are not sure :('
-        if trusted_1[2] == 1 and trusted_2[2] == 1:
-            outcome = 'Your friends believe this is truth'
-        else:
-            outcome = 'Your friends believe this is fake'
+        if doc_results:
+            if doc_results[0] == 1 and doc_results[-1] == 1:
+                outcome = 'Your friends believe this is truth'
+            else:
+                outcome = 'Your friends believe this is fake'
         return {
                 'result': outcome,
-                'doc': [doc_result_1, doc_result_2]
+                'doc': doc_results
         }
 
 class Dummy(Resource):
