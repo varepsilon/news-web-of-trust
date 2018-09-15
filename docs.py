@@ -93,7 +93,8 @@ def get_most_trusted_from_similar(similar_docs, trust_graph, root_user, trust_th
         # {0: [1, 2, 3], ... }
         for user in trust_graph[chain[-1]]:
             if not user in processed:
-                new_chain = chain[:].append(user)
+                new_chain = chain[:]
+                new_chain.append(user)
                 trust_queue.append(new_chain)
             if user in users_to_docs:
                 doc, ranking = users_to_docs[user]
@@ -113,7 +114,8 @@ def get_most_similar_from_trusted(similar_docs, trust_graph, root_user, trust_th
             continue
         for user in trust_graph[chain[-1]]:
             if not user in processed:
-                new_chain = chain[:].append(user)
+                new_chain = chain[:]
+                new_chain.append(user)
                 trust_queue.append(new_chain)
                 user_to_chain[user] = new_chain
 
