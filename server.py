@@ -10,8 +10,7 @@ api = Api(app)
 
 class StorageAccessor(Resource):
     def put(self):
-        doc = docs.WebDocument(request.form['url'])
-        return docs.get_similar_docs(doc, 3)
+        return docs.get_similar_docs(request.form['url'], 10)
 
 
 class Voter(Resource):

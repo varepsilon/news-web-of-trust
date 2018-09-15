@@ -43,7 +43,7 @@ def _html_to_text(path):
     content = html_to_text.handle(html_content)
     for word in content.split(' '):
         if re.fullmatch('[a-zA-Z_]+', word):
-            words.append(word.lower())
+            words.append(word)
     result = ' '.join(words)
     html_to_text_cache[path] = result
     return result
@@ -57,8 +57,12 @@ def add_new_doc(url, user, ranking):
 def get_storage():
     return document_storage
 
-def get_similar_docs(this_doc, top_n):
+def get_similar_docs(this_doc_url, top_n):
     h = []
+    if this_doc_url in document_storage:
+        this_doc = document_storage[this_doc_url]['doc']
+    else:
+        this_doc = WebDocument(this_doc_url)
     v1 = this_doc.vector
     for stored in document_storage.values():
         that_doc = stored['doc']
