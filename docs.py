@@ -3,6 +3,7 @@ import os
 import re
 import json
 import urllib.request
+from collections import deque
 
 import newspaper
 import shelve
@@ -72,3 +73,26 @@ def get_similar_docs(this_doc_url, top_n):
         'ranking': document_storage[key]['ranking'],
         }) for sim, key in top]
 
+
+def get_most_trusted_from_similar(similar_docs, trust_graph, root_user, trust_threshold):
+    '''returns triplet (user chain, doc_info, ranking) or None'''
+    users_to_docs = dict()
+    for sim, doc in similar_docs[::-1]:
+        for user, ranking in doc['ranking'].items():
+            users_to_docs[user] = (doc['doc'], ranking)
+
+    trusted = deque()
+    trusted.append([root_user])
+    processed = set()
+    while trusted:
+        chain = trusted.popleft()
+        processed.add(chain[-1])
+        if len(chain) > trust_threshold:
+            continue
+        for user in trust_graph[chain[-1]]:
+            if not user in processed:
+                new_chain = chain[:].append(user)
+                trusted.append(new_chain)
+            if user in users_to_docs:
+                doc, ranking = users_to_docs[user]
+                return new_chain, doc, ranking
