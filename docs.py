@@ -39,7 +39,7 @@ def _html_to_text(path):
             "md": 1, # whether to run Markdownify or not, 0 turns off
             "output": "json", # type of text to return: json, url (encoded), or markdown
     }
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=2)
     words = []
     for word in response.text.split(' '):
         if re.fullmatch('[a-zA-Z_]+', word):
