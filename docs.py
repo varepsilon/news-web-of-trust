@@ -62,7 +62,9 @@ def get_similar_docs(this_doc, top_n):
         v2 = that_doc.vector
         sim = doc_to_vec.sim(v1, v2)
         if sim != 1:
-            heapq.heappush(h, (sim, that_doc))
+            heapq.heappush(h, (sim, stored))
     top = heapq.nlargest(top_n, h)
-    return [(sim, doc.toJSON()) for sim, doc in top]
-
+    return [(sim, {
+        'doc': doc_info['doc'].toJSON(),
+        'ranking': json.loads(json.dumps(doc_info['ranking'])),
+        }) for sim, doc_info in top]

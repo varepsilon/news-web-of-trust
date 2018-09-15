@@ -41,8 +41,20 @@ can_trust_button.onclick = function(element) {
 			.then(function(response) {
 				// Examine the text in the response
 				response.json().then(function(data) {
-					console.log(data);
+					ShowResults(data);
 				});
 			});
 	});
+}
+
+function ShowResults(data) {
+	var news = document.getElementById('results');
+	for(var i = 0; i < items.length; i++) {
+		var h5 = document.createElement("h5");
+		h5.innerHTML = items[i][0];
+    		news.appendChild(h5);
+		var p = document.createElement("p");
+		p.innerHTML = items[i][1]['doc']['content']
+    		news.appendChild(p);
+	}
 }
