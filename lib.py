@@ -22,19 +22,19 @@ class Doc2Vec:
 
     def get_vector(self, document):
         ''' Return the float vector corresponding to the string `document` '''
-        sum_vec = 0
-        l = 0
+        word_vectors = []
         oov_words = set()
-        for word in nltk.tokenize.word_tokenize(document):
+        for word in nltk.tokenize.word_tokenize(document)[:60]:
             try:
-                sum_vec += self.model.wv[word]
-                l += 1
+                word_vectors.append(self.model.wv[word])
             except KeyError:
                 oov_words.add(word)
                 continue
         if DEBUG:
-            print(oov_words, file=sys.stderr)
-        return sum_vec / l
+            print('OOV words:', oov_words, file=sys.stderr)
+        # pad with zero vectors for short documents
+        word_vectors.extend([np.zeros(300) for i in range(60 - len(word_vectors))])
+        return np.concatenate(word_vectors)
 
     @staticmethod
     def sim(v1, v2):
@@ -42,6 +42,7 @@ class Doc2Vec:
         return 1 - scipy.spatial.distance.cosine(v1, v2)
 
 if __name__ == '__main__':
+    print('======= RUNNING TESTS / SANITY CHECKS ===========')
     doc2vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
     docs = ['Donald Trump was elected US president',
             'Hilary Clinton turned out to be a lizard!',
@@ -56,4 +57,6 @@ if __name__ == '__main__':
                     doc2vec.sim(doc2vec.get_vector(d1), doc2vec.get_vector(d2))))
 
     with open('./testdata/cleaned_news.txt') as test_data:
+        # Run this in the DEBUG mode to see what are the OOV words
         vec = doc2vec.get_vector(test_data.read())
+
