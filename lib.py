@@ -16,10 +16,12 @@ DEBUG = True
 
 class Doc2Vec:
     def __init__(self, model_path):
+        ''' This initialization is slow. Make sure you don't call it often'''
         self.model = gensim.models.KeyedVectors.load_word2vec_format(
                 model_path, binary=True)
 
     def get_vector(self, document):
+        ''' Return the float vector corresponding to the string `document` '''
         sum_vec = 0
         l = 0
         oov_words = set()
@@ -35,8 +37,9 @@ class Doc2Vec:
         return sum_vec / l
 
     @staticmethod
-    def sim(w1, w2):
-        return 1 - scipy.spatial.distance.cosine(w1, w2)
+    def sim(v1, v2):
+        ''' Compute similarity (from 0 to 1) between float vectors v1 and v2 '''
+        return 1 - scipy.spatial.distance.cosine(v1, v2)
 
 if __name__ == '__main__':
     doc2vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
