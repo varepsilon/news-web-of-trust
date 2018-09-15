@@ -2,23 +2,27 @@ let real_button = document.getElementById('real')
 let fake_button = document.getElementById('fake')
 let can_trust_button = document.getElementById('can_trust')
 
-real_button.onclick = function(element) {
+function SendVoteRequest(ranking) {
 	chrome.tabs.query({active: true, lastFocusedWindow: true}, tab => {
-		var url = tab[0].url;
-		alert(url);
-		fetch('http://127.0.0.1:8000', {
-			method='put',
+		var url_path = tab[0].url;
+		fetch('http://127.0.0.1:8000/vote', {
+			method: 'PUT',
 			headers: {
 				"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
 			},
-			body: 'url=http://google.com&user=u1&ranking=1.0'
+			body: 'url=' + encodeURIComponent(url_path) + '&user=Pasha&ranking=' + ranking,
 		})
-		.then(json)
-		.then(function (data) {
-			console.log('Request succeeded with JSON response', data);
-		})
-		.catch(function (error) {
-			console.log('Request failed', error);
+		.then(function(response) {
+			console.log(response.status);
+			console.log(response.statusText);
 		});
 	});
+}
+
+real_button.onclick = function(element) {
+	SendVoteRequest('1');
+}
+
+fake_button.onclick = function(element) {
+	SendVoteRequest('0');
 }

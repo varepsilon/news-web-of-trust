@@ -1,9 +1,11 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 from flask_jsonpify import jsonify
+from flask_cors import CORS
 from docs import add_new_doc, get_storage, html_to_text, get_similar_docs
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 class StorageAccessor(Resource):
