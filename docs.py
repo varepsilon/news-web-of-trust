@@ -1,15 +1,17 @@
+import os
 import heapq
 import re
-import requests
 import json
+import html2text
+import urllib.request
 
 from lib import Doc2Vec
 from fcache.cache import FileCache
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 
+# document_storage = FileCache('document_cache', flag='cs', app_cache_dir=os.path.dirname(os.path.abspath(__file__)))
 document_storage = {}
-
 
 class WebDocument:
     def __init__(self, url, content=None, vector=None):
@@ -30,31 +32,26 @@ class WebDocument:
             content_truncated = content_truncated[:-3] + '...'
         return {'url': self.url, 'content': content_truncated}
 
-fuck_yeah_cache = FileCache('fcuk_yeah_cache', flag='cs')
+html_to_text_cache = FileCache('html_to_text_cache', flag='cs', app_cache_dir=os.path.dirname(os.path.abspath(__file__)))
+html_to_text = html2text.HTML2Text()
 
 def _html_to_text(path):
-    if path in fuck_yeah_cache:
-        return fuck_yeah_cache[path]
-    url = "http://fuckyeahmarkdown.com/go/"
-    # construct query
-    params = {
-            "u": path, # url encoded URI to parse
-            "read": 1, # whether to run Readability or not, 0 turns off
-            "md": 1, # whether to run Markdownify or not, 0 turns off
-            "output": "json", # type of text to return: json, url (encoded), or markdown
-    }
-    response = requests.get(url, params=params)
-    words = []
-    for word in response.text.split(' '):
+    if path in html_to_text_cache:
+        return html_to_text_cache[path]
+    with urllib.request.urlopen(path) as r:
+        html_content = r.read()
+    content = html_to_text.handle(html_content)
+    for word in content.split(' '):
         if re.fullmatch('[a-zA-Z_]+', word):
             words.append(word.lower())
     result = ' '.join(words)
-    fuck_yeah_cache[path] = result
+    html_to_text_cache[path] = result
     return result
 
 def add_new_doc(url, user, ranking):
     doc = WebDocument(url)
-    document_storage.setdefault(url, {'doc': doc, 'ranking': {}})
+    if url not in document_storage:
+        document_storage[url] = {'doc': doc, 'ranking': {}}
     document_storage[url]['ranking'][user] = ranking
 
 def get_storage():
