@@ -32,7 +32,7 @@ def format_result(result):
     return {
             'url': doc['url'],
             'content': doc['content'],
-            'status': 'fake' if ranking == 1 else 'real',
+            'status': 'fake' if ranking == 0 else 'real',
             'friends': [IDS_TO_USERS[id_] for id_ in chain]
     }
 
@@ -96,6 +96,6 @@ if __name__ == '__main__':
         user_json = json.load(user_file)
         users = user_json.values()
         for user in users:
-            IDS_TO_USERS[user['id']] = f"{user['name']} {user['secondName']}"
+            IDS_TO_USERS[user['id']] =  user['id']
             TRUST_GRAPH[user['id']] = user['friendsIdList']
     app.run(port='8000')
