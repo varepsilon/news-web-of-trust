@@ -46,10 +46,10 @@ class SimilarDocsAccessor(Resource):
         trusted_1 = docs.get_most_trusted_from_similar(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
         trusted_2 = docs.get_most_similar_from_trusted(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
         doc_results = []
-        if trusted_1 is not None:
+        if trusted_1:
             doc_results.append(format_result(trusted_1))
         print(trusted_1)
-        if trusted_2 is not None and trusted_1[1]['url'] != trusted_2[1]['url']:
+        if trusted_2 or (trusted_1 and trusted_1[1]['url'] != trusted_2[1]['url']):
             doc_results.append(format_result(trusted_2))
 
         outcome = 'Your friends are not sure :('
