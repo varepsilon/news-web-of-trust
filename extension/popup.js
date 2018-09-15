@@ -68,3 +68,30 @@ function ShowResults(data) {
 		}
 	}
 }
+
+function ShowNewResults(data) {
+	document.body.style.width = '500px';
+	real_button.style.display = 'none';
+	fake_button.style.display = 'none';
+	can_trust_button.style.display = 'none';
+	var news = document.getElementById('results');
+	const markup = `
+	<p id='${data.result}_result'>Your friends believe this is ${data.result}</p>
+	<div class='center'>
+	<p style='color: #333333' class='similar'><i>Based on the similar articles...</i></p>
+	<div class='snippet ${data.doc[0].status}_snippet'>
+	<a href="${data.doc[0].url}">
+	<p>${data.doc[0].content}</p>
+	<p class='credit'><i>${data.doc[0].friend}</i></p>
+	</a>
+	</div>
+	<div class='snippet ${data.doc[1].status}_snippet'>
+	<a href="${data.doc[1].url}">
+	<p>${data.doc[1].content}</p>
+	<p class='credit'><i>${data.doc[1].friend}</i></p>
+	</a>
+	</div>
+	</div>
+	`
+	news.innerHTML = markup;
+}
