@@ -38,9 +38,12 @@ html_to_text = html2text.HTML2Text()
 def _html_to_text(path):
     if path in html_to_text_cache:
         return html_to_text_cache[path]
-    with urllib.request.urlopen(path) as r:
-        html_content = r.read()
-    content = html_to_text.handle(html_content)
+    resource = urllib.request.urlopen(path)
+    content = resource.read()
+    charset = resource.headers.get_content_charset()
+    content = content.decode(charset)
+    content = html_to_text.handle(content)
+    words = []
     for word in content.split(' '):
         if re.fullmatch('[a-zA-Z_]+', word):
             words.append(word)
