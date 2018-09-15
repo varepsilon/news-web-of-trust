@@ -43,7 +43,7 @@ def _html_to_text(path):
     words = []
     for word in response.text.split(' '):
         if re.fullmatch('[a-zA-Z_]+', word):
-            words.append(word.lower())
+            words.append(word)
     return ' '.join(words)
 
 def add_new_doc(url, user, ranking):
