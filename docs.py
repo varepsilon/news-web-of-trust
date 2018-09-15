@@ -4,7 +4,7 @@ import requests
 
 from lib import Doc2Vec
 
-#doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
+doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 doc_to_votes = {}
 
 def html_to_text(path):
@@ -20,7 +20,7 @@ def html_to_text(path):
     words = []
     for word in response.text.split(' '):
         if re.fullmatch('[a-zA-Z_]+', word):
-            words.append(word)
+            words.append(word.lower())
     return ' '.join(words)
 
 def add_new_doc(url, user, ranking):
@@ -32,13 +32,13 @@ def add_new_doc(url, user, ranking):
 def get_storage():
     return doc_to_votes
 
-#def get_similar_docs(this_doc, top_n):
-#    h = []
-#    v1 = doc_to_vec.get_vector(this_doc)
-#    for that_doc, users in doc_to_votes:
-#        v2 = doc_to_vec.get_vector(that_doc)
-#        sim = doc_to_vec.sim(v1, v2)
-#        if sim != 1:
-#            heapq.heappush(h, (v2, that_doc))
-#    top = heapq.nlargest(top_n, h)
-
+def get_similar_docs(this_doc, top_n):
+    h = []
+    v1 = doc_to_vec.get_vector(this_doc)
+    for that_doc, users in doc_to_votes.items():
+        v2 = doc_to_vec.get_vector(that_doc)
+        sim = doc_to_vec.sim(v1, v2)
+        if sim != 1:
+            heapq.heappush(h, (sim, that_doc))
+    top = heapq.nlargest(top_n, h)
+    return top
