@@ -41,6 +41,7 @@ def _get_content_and_summary(path):
         news_article = newspaper.Article(path)
         news_article.download()
         news_article.parse()
+        news_article.nlp()
         content_and_summary_cache[path] = (
                 news_article.text, news_article.summary)
         content_and_summary_cache.sync()
