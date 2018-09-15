@@ -30,7 +30,6 @@ fake_button.onclick = function(element) {
 can_trust_button.onclick = function(element) {
 	chrome.tabs.query({active: true, lastFocusedWindow: true}, tab => {
 		var url_path = tab[0].url;
-		console.log(url_path);
 		fetch('http://127.0.0.1:8000/storage', {
 				method: 'PUT',
 				headers: {
@@ -50,6 +49,7 @@ can_trust_button.onclick = function(element) {
 function ShowResults(data) {
 	document.body.style.width = '500px';
 	var news = document.getElementById('results');
+	document.getElementById('buttons').style.display = 'none';
 	for(var i = 0; i < data.length; i++) {
 		var div = document.createElement("div");
 		div.style.width = '150px';
