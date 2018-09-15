@@ -23,9 +23,33 @@ class Voter(Resource):
         except:
             return 'Failed!\n{}'.format(traceback.format_exc())
 
+def format_result(result):
+    chain, doc, ranking = result
+    return {
+            'url': doc['url'],
+            'content': doc['content'],
+            'status': 'fake' if ranking == 1 else 'real',
+            'friend': 'Foo'
+    }
+
+
 class SimilarDocsAccessor(Resource):
     def put(self):
-        return docs.get_similar_docs
+        doc = docs.WebDocument(request.form['url'])
+        similar = docs.get_similar_docs(doc, 1000)
+        trusted_1 = docs.get_most_trusted_from_similar(similar, [], 'foo', 2)
+        trusted_2 = docs.get_most_similar_from_trusted(similar, [], 'bar', 2)
+        doc_result_1 = format_result(trusted_1)
+        doc_result_2 = format_result(trusted_2)
+        outcome = 'Your friends are not sure :('
+        if trusted_1[2] == 1 and trusted_2[2] == 1:
+            outcome = 'Your friends believe this is truth'
+        else:
+            outcome = 'Your friends believe this is fake'
+        return {
+                'result': outcome,
+                'doc': [doc_result_1, doc_result_2]
+        }
 
 class Dummy(Resource):
     def put(self):

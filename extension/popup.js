@@ -76,7 +76,7 @@ function ShowNewResults(data) {
 	can_trust_button.style.display = 'none';
 	var news = document.getElementById('results');
 	const markup = `
-	<p id='${data.result}_result'>Your friends believe this is ${data.result}</p>
+	<p>${data.result}</p>
 	<div class='center'>
 	<p style='color: #333333' class='similar'><i>Based on the similar articles...</i></p>
 	<div class='snippet ${data.doc[0].status}_snippet'>

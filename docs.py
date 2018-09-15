@@ -89,6 +89,7 @@ def get_most_trusted_from_similar(similar_docs, trust_graph, root_user, trust_th
         processed.add(chain[-1])
         if len(chain) > trust_threshold:
             continue
+        # {0: [1, 2, 3], ... }
         for user in trust_graph[chain[-1]]:
             if not user in processed:
                 new_chain = chain[:].append(user)
