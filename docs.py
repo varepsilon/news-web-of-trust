@@ -1,24 +1,23 @@
-import os
 import heapq
+import os
 import re
 import json
-import html2text
 import urllib.request
 
+import newspaper
+import shelve
+
 from lib import Doc2Vec
-from fcache.cache import FileCache
-from newspaper import Article
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 
-# document_storage = FileCache('document_cache', flag='cs', app_cache_dir=os.path.dirname(os.path.abspath(__file__)))
-document_storage = {}
+document_storage = shelve.open('document_storage.cache')
 
 class WebDocument:
     def __init__(self, url, content=None, summary=None, vector=None):
         if content is None:
             content, summary = _get_content_and_summary(url)
-        if summary is None:
+        if summary is None or len(summary) == 0:
             summary = content[:300]
             if len(summary) < len(content):
                 summary = summary[:-3] + '...'
@@ -35,16 +34,16 @@ class WebDocument:
     def toJSON(self):
         return {'url': self.url, 'content': self.summary}
 
-content_and_summary_cache = FileCache('content_and_summary_cache', flag='cs',
-        app_cache_dir=os.path.dirname(os.path.abspath(__file__)))
+content_and_summary_cache = shelve.open('content_and_summary.cache')
 
 def _get_content_and_summary(path):
     if path not in content_and_summary_cache:
-        news_article = Article(path)
+        news_article = newspaper.Article(path)
         news_article.download()
         news_article.parse()
         content_and_summary_cache[path] = (
                 news_article.text, news_article.summary)
+        content_and_summary_cache.sync()
     return content_and_summary_cache[path]
 
 def add_new_doc(url, user, ranking):
@@ -52,6 +51,7 @@ def add_new_doc(url, user, ranking):
         doc = WebDocument(url)
         document_storage[url] = {'doc': doc, 'ranking': {}}
     document_storage[url]['ranking'][user] = ranking
+    document_storage.sync()
 
 def get_storage():
     return document_storage
