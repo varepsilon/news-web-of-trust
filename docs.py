@@ -13,12 +13,17 @@ def html_to_text(path):
             "output": "json", # type of text to return: json, url (encoded), or markdown
     }
     response = requests.get(url, params=params)
-    words = re.sub("[^\w]", " ",  response.text)
-    return words
+    words = []
+    for word in response.text.split(' '):
+        if re.fullmatch('[a-zA-Z_]+', word):
+            words.append(word)
+    return ' '.join(words)
 
 def add_new_doc(url, user, ranking):
     content = html_to_text(url)
     if content not in doc_to_votes:
         doc_to_votes[content] = {}
     doc_to_votes[content][user] = ranking
-    # print(doc_to_votes)
+
+def get_storage():
+    return doc_to_votes
