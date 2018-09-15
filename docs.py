@@ -64,7 +64,8 @@ def get_similar_docs(this_doc_url, top_n):
     h = []
     if this_doc_url in document_storage:
         this_doc = document_storage[this_doc_url]['doc']
-    this_doc = WebDocument(this_doc_url)
+    else:
+        this_doc = WebDocument(this_doc_url)
     v1 = this_doc.vector
     for stored in document_storage.values():
         that_doc = stored['doc']
