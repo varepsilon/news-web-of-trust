@@ -32,7 +32,7 @@ def format_result(result):
     return {
             'url': doc['url'],
             'content': doc['content'],
-            'status': 'fake' if ranking == 1 else 'real',
+            'status': 'fake' if ranking == 0 else 'real',
             'friends': [IDS_TO_USERS[id_] for id_ in chain]
     }
 
