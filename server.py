@@ -48,7 +48,6 @@ class SimilarDocsAccessor(Resource):
         doc_results = []
         if trusted_1 is not None:
             doc_results.append(format_result(trusted_1))
-        print(trusted_2[1])
         if trusted_2 is not None and trusted_1[1]['url'] != trusted_2[1]['url']:
             doc_results.append(format_result(trusted_2))
 
