@@ -49,12 +49,11 @@ class SimilarDocsAccessor(Resource):
         if trusted_1:
             doc_results.append(format_result(trusted_1))
         print(trusted_1)
-        if trusted_2 or (trusted_1 and trusted_1[1]['url'] != trusted_2[1]['url']):
+        if trusted_2 and trusted_1 and (trusted_1[1]['url'] != trusted_2[1]['url']):
             doc_results.append(format_result(trusted_2))
-
         outcome = 'Your friends are not sure :('
         if doc_results:
-            if doc_results[0] == 1 and doc_results[-1] == 1:
+            if doc_results[0]['status'] == 'real' and doc_results[-1]['status'] == 'real':
                 outcome = 'Your friends believe this is truth'
             else:
                 outcome = 'Your friends believe this is fake'
