@@ -2,7 +2,7 @@ from flask import Flask, request
 from flask_restful import Resource, Api
 from flask_jsonpify import jsonify
 from flask_cors import CORS
-from docs import add_new_doc, get_storage, html_to_text, get_similar_docs
+import docs
 
 app = Flask(__name__)
 CORS(app)
@@ -10,22 +10,22 @@ api = Api(app)
 
 class StorageAccessor(Resource):
     def put(self):
-        doc = html_to_text(request.form['url'])
-        return get_similar_docs(doc, 10)
+        doc = docs.WebDocument(request.form['url'])
+        return docs.get_similar_docs(doc, 10)
         # return jsonify(get_storage()
 
 
 class Voter(Resource):
     def put(self):
         try:
-            add_new_doc(request.form['url'], request.form['user'], request.form['ranking'])
+            docs.add_new_doc(request.form['url'], request.form['user'], request.form['ranking'])
             return 'Success!'
         except:
             return 'Failed!'
 
 class SimilarDocsAccessor(Resource):
     def put(self):
-        return get_similar_docs
+        return docs.get_similar_docs
 
 # Example:
 # curl http://localhost:8000/storage -X GET

@@ -1,13 +1,33 @@
 import heapq
 import re
 import requests
+import json
 
 from lib import Doc2Vec
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
-doc_to_votes = {}
 
-def html_to_text(path):
+document_storage = {}
+
+
+class WebDocument:
+    def __init__(self, url, content=None, vector=None):
+        if content is None:
+            content = _html_to_text(url)
+        if vector is None:
+            vector = doc_to_vec.get_vector(content)
+        self.url = url
+        self.content = content
+        self.vector = vector
+
+    def __str__(self):
+        return self.toJSON()
+
+    def toJSON(self):
+        return json.dumps({'url': self.url, 'content': self.content})
+
+
+def _html_to_text(path):
     url = "http://fuckyeahmarkdown.com/go/"
     # construct query
     params = {
@@ -24,21 +44,22 @@ def html_to_text(path):
     return ' '.join(words)
 
 def add_new_doc(url, user, ranking):
-    content = html_to_text(url)
-    if content not in doc_to_votes:
-        doc_to_votes[content] = {}
-    doc_to_votes[content][user] = ranking
+    doc = WebDocument(url)
+    document_storage.setdefault(url, {'doc': doc, 'ranking': {}})
+    document_storage[url]['ranking'][user] = ranking
 
 def get_storage():
-    return doc_to_votes
+    return document_storage
 
 def get_similar_docs(this_doc, top_n):
     h = []
-    v1 = doc_to_vec.get_vector(this_doc)
-    for that_doc, users in doc_to_votes.items():
-        v2 = doc_to_vec.get_vector(that_doc)
+    v1 = this_doc.vector
+    for stored in document_storage.values():
+        that_doc = stored['doc']
+        v2 = that_doc.vector
         sim = doc_to_vec.sim(v1, v2)
         if sim != 1:
             heapq.heappush(h, (sim, that_doc))
     top = heapq.nlargest(top_n, h)
-    return top
+    return [(sim, doc.toJSON()) for sim, doc in top]
+
