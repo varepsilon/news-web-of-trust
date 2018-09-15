@@ -26,3 +26,23 @@ real_button.onclick = function(element) {
 fake_button.onclick = function(element) {
 	SendVoteRequest('0');
 }
+
+can_trust_button.onclick = function(element) {
+	chrome.tabs.query({active: true, lastFocusedWindow: true}, tab => {
+		var url_path = tab[0].url;
+		console.log(url_path);
+		fetch('http://127.0.0.1:8000/storage', {
+				method: 'PUT',
+				headers: {
+					"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+				},
+				body: 'url=' + encodeURIComponent(url_path),
+			})
+			.then(function(response) {
+				// Examine the text in the response
+				response.json().then(function(data) {
+					console.log(data);
+				});
+			});
+	});
+}

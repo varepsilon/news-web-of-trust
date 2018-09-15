@@ -12,7 +12,6 @@ class StorageAccessor(Resource):
     def put(self):
         doc = docs.WebDocument(request.form['url'])
         return docs.get_similar_docs(doc, 10)
-        # return jsonify(get_storage()
 
 
 class Voter(Resource):
