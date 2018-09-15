@@ -35,7 +35,7 @@ can_trust_button.onclick = function(element) {
 				headers: {
 					"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
 				},
-				body: 'url=' + encodeURIComponent(url_path) + '&user=2',
+				body: 'url=' + encodeURIComponent(url_path) + '&user=0',
 			})
 			.then(function(response) {
 				// Examine the text in the response
