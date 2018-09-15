@@ -48,7 +48,7 @@ if __name__ == '__main__':
             'Hilary Clinton lost the United States elections',
             ]
     for i in range(len(docs)):
-        for j in range(i + 1, len(docs)):
+        for j in range(i, len(docs)):
             d1 = docs[i]
             d2 = docs[j]
             print('sim([{}],[{}]) = {}'.format(
