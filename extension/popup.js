@@ -26,3 +26,35 @@ real_button.onclick = function(element) {
 fake_button.onclick = function(element) {
 	SendVoteRequest('0');
 }
+
+can_trust_button.onclick = function(element) {
+	chrome.tabs.query({active: true, lastFocusedWindow: true}, tab => {
+		var url_path = tab[0].url;
+		console.log(url_path);
+		fetch('http://127.0.0.1:8000/storage', {
+				method: 'PUT',
+				headers: {
+					"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+				},
+				body: 'url=' + encodeURIComponent(url_path),
+			})
+			.then(function(response) {
+				// Examine the text in the response
+				response.json().then(function(data) {
+					ShowResults(data);
+				});
+			});
+	});
+}
+
+function ShowResults(data) {
+	var news = document.getElementById('results');
+	for(var i = 0; i < items.length; i++) {
+		var h5 = document.createElement("h5");
+		h5.innerHTML = items[i][0];
+    		news.appendChild(h5);
+		var p = document.createElement("p");
+		p.innerHTML = items[i][1]['doc']['content']
+    		news.appendChild(p);
+	}
+}

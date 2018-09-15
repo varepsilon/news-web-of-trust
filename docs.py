@@ -4,6 +4,7 @@ import requests
 import json
 
 from lib import Doc2Vec
+from fcache.cache import FileCache
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 
@@ -29,8 +30,11 @@ class WebDocument:
             content_truncated = content_truncated[:-3] + '...'
         return json.dumps({'url': self.url, 'content': content_truncated})
 
+fuck_yeah_cache = FileCache('fcuk_yeah_cache', flag='cs')
 
 def _html_to_text(path):
+    if path in fuck_yeah_cache:
+        return fuck_yeah_cache[path]
     url = "http://fuckyeahmarkdown.com/go/"
     # construct query
     params = {
@@ -44,7 +48,9 @@ def _html_to_text(path):
     for word in response.text.split(' '):
         if re.fullmatch('[a-zA-Z_]+', word):
             words.append(word)
-    return ' '.join(words)
+    result = ' '.join(words)
+    fuck_yeah_cache[path] = result
+    return result
 
 def add_new_doc(url, user, ranking):
     doc = WebDocument(url)
@@ -65,7 +71,9 @@ def get_similar_docs(this_doc_url, top_n):
         v2 = that_doc.vector
         sim = doc_to_vec.sim(v1, v2)
         if sim != 1:
-            heapq.heappush(h, (sim, that_doc))
+            heapq.heappush(h, (sim, stored))
     top = heapq.nlargest(top_n, h)
-    return [(sim, doc.toJSON()) for sim, doc in top]
-
+    return [(sim, {
+        'doc': doc_info['doc'].toJSON(),
+        'ranking': json.loads(json.dumps(doc_info['ranking'])),
+        }) for sim, doc_info in top]
