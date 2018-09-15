@@ -15,7 +15,11 @@ class StorageAccessor(Resource):
 
 class Voter(Resource):
     def put(self):
-        add_new_doc(request.form['url'], request.form['user'], request.form['ranking'])
+        try:
+            add_new_doc(request.form['url'], request.form['user'], request.form['ranking'])
+            return 'Success!'
+        except:
+            return 'Failed!'
 
 class SimilarDocsAccessor(Resource):
     def put(self):
