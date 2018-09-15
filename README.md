@@ -3,7 +3,7 @@ Get your news verified by the people you trust
 
 ## Prerequisites
 ```
-pip install nltk gensim
+pip install nltk gensim flask flask_restful flask_jsonpify
 ```
 
 ```
