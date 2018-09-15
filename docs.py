@@ -38,6 +38,7 @@ class WebDocument:
 content_and_summary_cache = shelve.open('content_and_summary.cache')
 
 def _get_content_and_summary(path):
+    print(path)
     if path not in content_and_summary_cache:
         news_article = newspaper.Article(path)
         news_article.download()
