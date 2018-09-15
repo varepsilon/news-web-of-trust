@@ -4,6 +4,7 @@ import requests
 import json
 
 from lib import Doc2Vec
+from fcache.cache import FileCache
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 
@@ -29,8 +30,11 @@ class WebDocument:
             content_truncated = content_truncated[:-3] + '...'
         return json.dumps({'url': self.url, 'content': content_truncated})
 
+fuck_yeah_cache = FileCache('fcuk_yeah_cache', flag='cs')
 
 def _html_to_text(path):
+    if path in fuck_yeah_cache:
+        return fuck_yeah_cache[path]
     url = "http://fuckyeahmarkdown.com/go/"
     # construct query
     params = {
@@ -44,7 +48,9 @@ def _html_to_text(path):
     for word in response.text.split(' '):
         if re.fullmatch('[a-zA-Z_]+', word):
             words.append(word.lower())
-    return ' '.join(words)
+    result = ' '.join(words)
+    fuck_yeah_cache[path] = result
+    return result
 
 def add_new_doc(url, user, ranking):
     doc = WebDocument(url)
