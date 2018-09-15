@@ -128,7 +128,9 @@ def get_most_similar_from_trusted(similar_docs, trust_graph, root_user, trust_th
         intersection = processed.intersection(doc_and_ranking['ranking'].keys())
         if intersection:
             print('INTERSECTED')
-            doc, ranking = doc_and_ranking
+            doc = doc_and_ranking['doc']
+            ranking = doc_and_ranking['ranking']
+            print("DNR", doc_and_ranking)
             relevant_chains = (user_to_chain[user] for user in intersection)
             lens_and_chains = map(lambda chain: (len(chain), chain), relevant_chains)
             len_, chain  = max(lens_and_chains)
