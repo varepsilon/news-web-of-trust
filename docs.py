@@ -4,14 +4,13 @@ import re
 import json
 import html2text
 import urllib.request
+import shelve
 
 from lib import Doc2Vec
-from fcache.cache import FileCache
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 
-# document_storage = FileCache('document_cache', flag='cs', app_cache_dir=os.path.dirname(os.path.abspath(__file__)))
-document_storage = {}
+document_storage = shelve.open('document_storage.cache')
 
 class WebDocument:
     def __init__(self, url, content=None, vector=None):
@@ -32,7 +31,7 @@ class WebDocument:
             content_truncated = content_truncated[:-3] + '...'
         return {'url': self.url, 'content': content_truncated}
 
-html_to_text_cache = FileCache('html_to_text_cache', flag='cs', app_cache_dir=os.path.dirname(os.path.abspath(__file__)))
+html_to_text_cache = shelve.open('html_to_text.cache')
 html_to_text = html2text.HTML2Text()
 
 def _html_to_text(path):
@@ -49,6 +48,7 @@ def _html_to_text(path):
             words.append(word)
     result = ' '.join(words)
     html_to_text_cache[path] = result
+    html_to_text_cache.sync()
     return result
 
 def add_new_doc(url, user, ranking):
@@ -56,6 +56,7 @@ def add_new_doc(url, user, ranking):
     if url not in document_storage:
         document_storage[url] = {'doc': doc, 'ranking': {}}
     document_storage[url]['ranking'][user] = ranking
+    document_storage.sync()
 
 def get_storage():
     return document_storage
