@@ -28,7 +28,7 @@ class WebDocument:
         content_truncated = self.content[:300]
         if len(content_truncated) < len(self.content):
             content_truncated = content_truncated[:-3] + '...'
-        return json.dumps({'url': self.url, 'content': content_truncated})
+        return {'url': self.url, 'content': content_truncated}
 
 fuck_yeah_cache = FileCache('fcuk_yeah_cache', flag='cs')
 

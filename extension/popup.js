@@ -48,13 +48,23 @@ can_trust_button.onclick = function(element) {
 }
 
 function ShowResults(data) {
+	document.body.style.width = '500px';
 	var news = document.getElementById('results');
-	for(var i = 0; i < items.length; i++) {
+	for(var i = 0; i < data.length; i++) {
+		var div = document.createElement("div");
+		div.style.width = '150px';
+		div.style.display = 'inline-block';
+    		news.appendChild(div);
 		var h5 = document.createElement("h5");
-		h5.innerHTML = items[i][0];
-    		news.appendChild(h5);
+		h5.innerHTML = 'score: ' + data[i][0];
+    		div.appendChild(h5);
 		var p = document.createElement("p");
-		p.innerHTML = items[i][1]['doc']['content']
-    		news.appendChild(p);
+		p.innerHTML = data[i][1].doc.content
+    		div.appendChild(p);
+		for (const [user, ranking] of Object.entries(data[i][1].ranking)) {
+			var p = document.createElement("p");
+			p.innerHTML = user + ': ' + ranking
+    			div.appendChild(p);
+		}
 	}
 }
