@@ -81,18 +81,45 @@ def get_most_trusted_from_similar(similar_docs, trust_graph, root_user, trust_th
         for user, ranking in doc['ranking'].items():
             users_to_docs[user] = (doc['doc'], ranking)
 
-    trusted = deque()
-    trusted.append([root_user])
+    trust_queue = deque()
+    trust_queue.append([root_user])
     processed = set()
-    while trusted:
-        chain = trusted.popleft()
+    while trust_queue:
+        chain = trust_queue.popleft()
         processed.add(chain[-1])
         if len(chain) > trust_threshold:
             continue
         for user in trust_graph[chain[-1]]:
             if not user in processed:
                 new_chain = chain[:].append(user)
-                trusted.append(new_chain)
+                trust_queue.append(new_chain)
             if user in users_to_docs:
                 doc, ranking = users_to_docs[user]
                 return new_chain, doc, ranking
+
+
+def get_most_similar_from_trusted(similar_docs, trust_graph, root_user, trust_threshold):
+    '''returns triplet (user chain, doc_info, ranking) or None'''
+    trust_queue = deque()
+    trust_queue.append([root_user])
+    processed = set()
+    user_to_chain = {root_user: [root_user]}
+    while trust_queue:
+        chain = trust_queue.popleft()
+        processed.add(chain[-1])
+        if len(chain) > trust_threshold:
+            continue
+        for user in trust_graph[chain[-1]]:
+            if not user in processed:
+                new_chain = chain[:].append(user)
+                trust_queue.append(new_chain)
+                user_to_chain[user] = new_chain
+
+    for sim, doc_and_ranking in similar_docs:
+        intersection = processed.intersection(doc_and_ranking['ranking'].keys())
+        if intersection:
+            doc, ranking = doc_and_ranking
+            relevant_chains = (user_to_chain[user] for user in intersection)
+            lens_and_chains = map(lambda chain: (len(chain['chain']), chain), relevant_chains)
+            len_, chain  = max(len_and_chains)
+            return chain, doc, ranking
