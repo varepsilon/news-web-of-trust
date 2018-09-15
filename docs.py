@@ -1,65 +1,58 @@
-import os
 import heapq
+import os
 import re
 import json
-import html2text
 import urllib.request
+from collections import deque
+
+import newspaper
 import shelve
 
 from lib import Doc2Vec
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 
-document_storage = shelve.open('document_storage.cache')
+document_storage = {}
 
 class WebDocument:
-    def __init__(self, url, content=None, vector=None):
+    def __init__(self, url, content=None, summary=None, vector=None):
         if content is None:
-            content = _html_to_text(url)
+            content, summary = _get_content_and_summary(url)
+        if summary is None or len(summary) == 0:
+            summary = content[:300]
+            if len(summary) < len(content):
+                summary = summary[:-3] + '...'
         if vector is None:
             vector = doc_to_vec.get_vector(content)
         self.url = url
         self.content = content
+        self.summary = summary
         self.vector = vector
 
     def __str__(self):
         return self.toJSON()
 
     def toJSON(self):
-        content_truncated = self.content[:300]
-        if len(content_truncated) < len(self.content):
-            content_truncated = content_truncated[:-3] + '...'
-        return {'url': self.url, 'content': content_truncated}
+        return {'url': self.url, 'content': self.summary}
 
-html_to_text_cache = shelve.open('html_to_text.cache')
-html_to_text = html2text.HTML2Text()
+content_and_summary_cache = shelve.open('content_and_summary.cache')
 
-def _html_to_text(path):
-    if path in html_to_text_cache:
-        return html_to_text_cache[path]
-    resource = urllib.request.urlopen(path)
-    content = resource.read()
-    charset = resource.headers.get_content_charset()
-    content = content.decode(charset)
-    content = html_to_text.handle(content)
-    words = []
-    for word in content.split(' '):
-        if re.fullmatch('[a-zA-Z_]+', word):
-            words.append(word)
-    result = ' '.join(words)
-    html_to_text_cache[path] = result
-    html_to_text_cache.sync()
-    return result
+def _get_content_and_summary(path):
+    if path not in content_and_summary_cache:
+        news_article = newspaper.Article(path)
+        news_article.download()
+        news_article.parse()
+        news_article.nlp()
+        content_and_summary_cache[path] = (
+                news_article.text, news_article.summary)
+        content_and_summary_cache.sync()
+    return content_and_summary_cache[path]
 
 def add_new_doc(url, user, ranking):
-    doc = WebDocument(url)
     if url not in document_storage:
+        doc = WebDocument(url)
         document_storage[url] = {'doc': doc, 'ranking': {}}
     document_storage[url]['ranking'][user] = ranking
-    document_storage.sync()
-
-def get_storage():
-    return document_storage
 
 def get_similar_docs(this_doc_url, top_n):
     h = []
@@ -68,14 +61,65 @@ def get_similar_docs(this_doc_url, top_n):
     else:
         this_doc = WebDocument(this_doc_url)
     v1 = this_doc.vector
-    for stored in document_storage.values():
+    for key, stored in document_storage.items():
         that_doc = stored['doc']
         v2 = that_doc.vector
         sim = doc_to_vec.sim(v1, v2)
         if sim != 1:
-            heapq.heappush(h, (sim, stored))
+            heapq.heappush(h, (sim, key))
     top = heapq.nlargest(top_n, h)
     return [(sim, {
-        'doc': doc_info['doc'].toJSON(),
-        'ranking': json.loads(json.dumps(doc_info['ranking'])),
-        }) for sim, doc_info in top]
+        'doc': document_storage[key]['doc'].toJSON(),
+        'ranking': document_storage[key]['ranking'],
+        }) for sim, key in top]
+
+
+def get_most_trusted_from_similar(similar_docs, trust_graph, root_user, trust_threshold):
+    '''returns triplet (user chain, doc_info, ranking) or None'''
+    users_to_docs = dict()
+    for sim, doc in similar_docs[::-1]:
+        for user, ranking in doc['ranking'].items():
+            users_to_docs[user] = (doc['doc'], ranking)
+
+    trust_queue = deque()
+    trust_queue.append([root_user])
+    processed = set()
+    while trust_queue:
+        chain = trust_queue.popleft()
+        processed.add(chain[-1])
+        if len(chain) > trust_threshold:
+            continue
+        for user in trust_graph[chain[-1]]:
+            if not user in processed:
+                new_chain = chain[:].append(user)
+                trust_queue.append(new_chain)
+            if user in users_to_docs:
+                doc, ranking = users_to_docs[user]
+                return new_chain, doc, ranking
+
+
+def get_most_similar_from_trusted(similar_docs, trust_graph, root_user, trust_threshold):
+    '''returns triplet (user chain, doc_info, ranking) or None'''
+    trust_queue = deque()
+    trust_queue.append([root_user])
+    processed = set()
+    user_to_chain = {root_user: [root_user]}
+    while trust_queue:
+        chain = trust_queue.popleft()
+        processed.add(chain[-1])
+        if len(chain) > trust_threshold:
+            continue
+        for user in trust_graph[chain[-1]]:
+            if not user in processed:
+                new_chain = chain[:].append(user)
+                trust_queue.append(new_chain)
+                user_to_chain[user] = new_chain
+
+    for sim, doc_and_ranking in similar_docs:
+        intersection = processed.intersection(doc_and_ranking['ranking'].keys())
+        if intersection:
+            doc, ranking = doc_and_ranking
+            relevant_chains = (user_to_chain[user] for user in intersection)
+            lens_and_chains = map(lambda chain: (len(chain['chain']), chain), relevant_chains)
+            len_, chain  = max(len_and_chains)
+            return chain, doc, ranking
