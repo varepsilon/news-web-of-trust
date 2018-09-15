@@ -7,6 +7,7 @@ import urllib.request
 
 from lib import Doc2Vec
 from fcache.cache import FileCache
+from newspaper import Article
 
 doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 
@@ -14,43 +15,41 @@ doc_to_vec = Doc2Vec('./model/GoogleNews-vectors-negative300-SLIM.bin')
 document_storage = {}
 
 class WebDocument:
-    def __init__(self, url, content=None, vector=None):
+    def __init__(self, url, content=None, summary=None, vector=None):
         if content is None:
-            content = _html_to_text(url)
+            content, summary = _get_content_and_summary(url)
+        if summary is None:
+            summary = content[:300]
+            if len(summary) < len(content):
+                summary = summary[:-3] + '...'
         if vector is None:
             vector = doc_to_vec.get_vector(content)
         self.url = url
         self.content = content
+        self.summary = summary
         self.vector = vector
 
     def __str__(self):
         return self.toJSON()
 
     def toJSON(self):
-        content_truncated = self.content[:300]
-        if len(content_truncated) < len(self.content):
-            content_truncated = content_truncated[:-3] + '...'
-        return {'url': self.url, 'content': content_truncated}
+        return {'url': self.url, 'content': self.summary}
 
-html_to_text_cache = FileCache('html_to_text_cache', flag='cs', app_cache_dir=os.path.dirname(os.path.abspath(__file__)))
-html_to_text = html2text.HTML2Text()
+content_and_summary_cache = FileCache('content_and_summary_cache', flag='cs',
+        app_cache_dir=os.path.dirname(os.path.abspath(__file__)))
 
-def _html_to_text(path):
-    if path in html_to_text_cache:
-        return html_to_text_cache[path]
-    with urllib.request.urlopen(path) as r:
-        html_content = r.read()
-    content = html_to_text.handle(html_content)
-    for word in content.split(' '):
-        if re.fullmatch('[a-zA-Z_]+', word):
-            words.append(word)
-    result = ' '.join(words)
-    html_to_text_cache[path] = result
-    return result
+def _get_content_and_summary(path):
+    if path not in content_and_summary_cache:
+        news_article = Article(path)
+        news_article.download()
+        news_article.parse()
+        content_and_summary_cache[path] = (
+                news_article.text, news_article.summary)
+    return content_and_summary_cache[path]
 
 def add_new_doc(url, user, ranking):
-    doc = WebDocument(url)
     if url not in document_storage:
+        doc = WebDocument(url)
         document_storage[url] = {'doc': doc, 'ranking': {}}
     document_storage[url]['ranking'][user] = ranking
 
@@ -75,3 +74,4 @@ def get_similar_docs(this_doc_url, top_n):
         'doc': doc_info['doc'].toJSON(),
         'ranking': json.loads(json.dumps(doc_info['ranking'])),
         }) for sim, doc_info in top]
+
