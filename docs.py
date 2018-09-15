@@ -24,7 +24,10 @@ class WebDocument:
         return self.toJSON()
 
     def toJSON(self):
-        return json.dumps({'url': self.url, 'content': self.content})
+        content_truncated = self.content[:300]
+        if len(content_truncated) < len(self.content):
+            content_truncated = content_truncated[:-3] + '...'
+        return json.dumps({'url': self.url, 'content': content_truncated})
 
 
 def _html_to_text(path):
