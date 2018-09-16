@@ -40,7 +40,7 @@ def format_result(result):
 class SimilarDocsAccessor(Resource):
     def put(self):
         doc = request.form['url']
-        similar = docs.get_similar_docs(doc, 1000)
+        similar = docs.get_similar_docs(doc, 10)
         print('THE SIM', similar)
         root_user = int(request.form['user'])
         trusted_1 = docs.get_most_trusted_from_similar(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
@@ -48,7 +48,6 @@ class SimilarDocsAccessor(Resource):
         doc_results = []
         if trusted_1:
             doc_results.append(format_result(trusted_1))
-        print(trusted_1)
         if trusted_2 and trusted_1 and (trusted_1[1]['url'] != trusted_2[1]['url']):
             doc_results.append(format_result(trusted_2))
         outcome = 'Your friends are not sure :('
