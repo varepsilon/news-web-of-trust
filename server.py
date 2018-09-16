@@ -56,7 +56,7 @@ class SimilarDocsAccessor(Resource):
         if doc_results:
             if doc_results[0]['status'] == 'real' and doc_results[-1]['status'] == 'real':
                 outcome = 'Your friends believe this is truth'
-            else:
+            elif doc_results[0]['status'] == 'fake' and doc_results[-1]['status'] == 'fake':
                 outcome = 'Your friends believe this is fake'
         return {
                 'result': outcome,
