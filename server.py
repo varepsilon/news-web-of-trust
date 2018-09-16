@@ -2,6 +2,8 @@ from flask import Flask, request
 from flask_restful import Resource, Api
 from flask_jsonpify import jsonify
 from flask_cors import CORS
+import traceback
+
 import docs
 
 app = Flask(__name__)
@@ -10,9 +12,7 @@ api = Api(app)
 
 class StorageAccessor(Resource):
     def put(self):
-        doc = docs.WebDocument(request.form['url'])
-        return docs.get_similar_docs(doc, 10)
-        # return jsonify(get_storage()
+        return docs.get_similar_docs(request.form['url'], 10)
 
 
 class Voter(Resource):
@@ -21,7 +21,7 @@ class Voter(Resource):
             docs.add_new_doc(request.form['url'], request.form['user'], request.form['ranking'])
             return 'Success!'
         except:
-            return 'Failed!'
+            return 'Failed!\n{}'.format(traceback.format_exc())
 
 class SimilarDocsAccessor(Resource):
     def put(self):

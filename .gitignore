@@ -2,3 +2,4 @@ model/
 .ipynb_checkpoints/
 __pycache__
 *.pyc
+*.cache.db
