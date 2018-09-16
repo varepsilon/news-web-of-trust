@@ -1,6 +1,7 @@
 let real_button = document.getElementById('real')
 let fake_button = document.getElementById('fake')
 let can_trust_button = document.getElementById('can_trust')
+let buttons_div = document.getElementById('buttons')
 
 function SendVoteRequest(ranking) {
 	chrome.tabs.query({active: true, lastFocusedWindow: true}, tab => {
@@ -21,10 +22,18 @@ function SendVoteRequest(ranking) {
 
 real_button.onclick = function(element) {
 	SendVoteRequest('1');
+	real_button.style.display = 'none';
+	fake_button.style.display = 'none';
+	can_trust_button.style.display = 'none';
+	buttons_div.innerHTML = '<br>You marked it as truth! &#128077;';
 }
 
 fake_button.onclick = function(element) {
 	SendVoteRequest('0');
+	real_button.style.display = 'none';
+	fake_button.style.display = 'none';
+	can_trust_button.style.display = 'none';
+	buttons_div.innerHTML = '<br>You marked it as fake! &#128078;';
 }
 
 can_trust_button.onclick = function(element) {
