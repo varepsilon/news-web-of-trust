@@ -55,6 +55,7 @@ def get_storage():
     return document_storage
 
 def get_similar_docs(this_doc, top_n):
+
     h = []
     v1 = this_doc.vector
     for stored in document_storage.values():

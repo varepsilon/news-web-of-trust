@@ -36,4 +36,4 @@ api.add_resource(StorageAccessor, '/storage')
 api.add_resource(Voter, '/vote')
 
 if __name__ == '__main__':
-     app.run(port='8000')
+    app.run(port='8000')
