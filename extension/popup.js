@@ -35,7 +35,7 @@ can_trust_button.onclick = function(element) {
 				headers: {
 					"Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
 				},
-				body: 'url=' + encodeURIComponent(url_path) + '&user=2',
+				body: 'url=' + encodeURIComponent(url_path) + '&user=0',
 			})
 			.then(function(response) {
 				// Examine the text in the response
@@ -44,29 +44,6 @@ can_trust_button.onclick = function(element) {
 				});
 			});
 	});
-}
-
-function ShowResults(data) {
-	document.body.style.width = '500px';
-	var news = document.getElementById('results');
-	document.getElementById('buttons').style.display = 'none';
-	for(var i = 0; i < data.length; i++) {
-		var div = document.createElement("div");
-		div.style.width = '150px';
-		div.style.display = 'inline-block';
-    		news.appendChild(div);
-		var h5 = document.createElement("h5");
-		h5.innerHTML = 'score: ' + data[i][0];
-    		div.appendChild(h5);
-		var p = document.createElement("p");
-		p.innerHTML = data[i][1].doc.content
-    		div.appendChild(p);
-		for (const [user, ranking] of Object.entries(data[i][1].ranking)) {
-			var p = document.createElement("p");
-			p.innerHTML = user + ': ' + ranking
-    			div.appendChild(p);
-		}
-	}
 }
 
 function ShowNewResults(data) {
@@ -85,7 +62,7 @@ function ShowNewResults(data) {
 		<div class='snippet ${data.doc[0].status}_snippet'>
 		<a href="${data.doc[0].url}">
 		<p>${data.doc[0].content}</p>
-		<p class='credit'><i>${data.doc[0].friend}</i></p>
+		<p class='credit'><i>${data.doc[0].friends[0]}</i></p>
 		</a>
 		</div>`
 		markup_result += markup_1;
@@ -94,7 +71,7 @@ function ShowNewResults(data) {
 			`<div class='snippet ${data.doc[1].status}_snippet'>
 			<a href="${data.doc[1].url}">
 			<p>${data.doc[1].content}</p>
-			<p class='credit'><i>${data.doc[1].friend}</i></p>
+			<p class='credit'><i>${data.doc[1].friends[0]}</i></p>
 			</a>
 			</div>
 			</div>`
