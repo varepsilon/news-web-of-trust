@@ -3,24 +3,60 @@
 		<title>News Web of Trust</title>
 <style type="text/css">
     body {width:120; height:200;}
+    a {
+	    text-decoration: none;
+	    color: black;
+    }
     button {
+	    border: none;
+	    color: white;
+	    text-align: center;
+	    text-decoration: none;
+	    display: inline-block;
+	    margin: 4px 2px 20px;
+	    cursor: pointer;
 	    height: 30px;
-	    width: 100px;
-	    outline: none;
-            margin: 10px;
+    }
+    .center {
+	    margin: 0 auto;
+	    width: 100%;
+	    align: 'center';
+    }
+    .snippet {
+	    margin: 0 5px;
+	    padding: 5px;
+	    width: 50%;
+	    text-align: left;
+	    display: block;
+	    float: left;
+	    width: 230px;
+    }
+    .real_snippet {
+	    background-color:  #e6ffe6;
+	    color: white;
+    }
+    .fake_snippet {
+	    background-color:  #ffe6e6;
+	    color: white;
+    }
+    .credit {
+	    text-align: right;
+	    text-decoration: italic;
+	    color: #333333;
     }
 </style>
 	</head>
 	<body align="center">
 		<div align="center">
 			<img src='logo.png' width='100px'></br>
-			<button id='real'>I trust this news!</button></br>
-			<button id='fake'>This news is fake!</button></br></br>
-			<button id='can_trust'>Can I trust it?</button></br>
+			<div id='buttons'>
+			<button id='real' style="background-color: #4CAF50">This is truth! &#128077;</button>
+			<button id='fake' style="background-color: #f44336">This is fake! &#128078;</button>
+			<button id='can_trust' style="background-color: #008CBA">Can I trust this?</button>
+			</div>
 			<div id='results'>
 			</div>
 			<script src="popup.js"></script>
-			<script src="openpgpjs/dist/openpgp.min.js"></script>
 		</div>
 	</body>
 </html>

@@ -1,7 +1,7 @@
 {
-    "name": "News Web of Trust",
+    "name": "The X Fakes",
     "version": "1.0",
-    "description": "Be aware of the fake news!",
+    "description": "The truth is out there...",
     "manifest_version": 2,
     "browser_action": {
 	    "default_icon": "icon.png",
