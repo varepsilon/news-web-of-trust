@@ -96,6 +96,7 @@ if __name__ == '__main__':
         user_json = json.load(user_file)
         users = user_json.values()
         for user in users:
-            IDS_TO_USERS[user['id']] =  user['id']
+            IDS_TO_USERS[user['id']] = '{} {}'.format(user['name'],
+                                                      user['secondName'])
             TRUST_GRAPH[user['id']] = user['friendsIdList']
     app.run(port='8000')
