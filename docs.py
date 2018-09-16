@@ -79,12 +79,14 @@ def get_most_trusted_from_similar(similar_docs, trust_graph, root_user, trust_th
     users_to_docs = dict()
     for sim, doc in similar_docs[::-1]:
         for user, ranking in doc['ranking'].items():
-            users_to_docs[user] = (doc['doc'], ranking)
+            users_to_docs[user] = (doc['doc'], ranking, sim)
 
     trust_queue = deque()
     trust_queue.append([root_user])
     processed = set()
+    best_most_trusted = None
     while trust_queue:
+        print(best_most_trusted)
         chain = trust_queue.popleft()
         processed.add(chain[-1])
         if len(chain) > trust_threshold:
@@ -96,8 +98,16 @@ def get_most_trusted_from_similar(similar_docs, trust_graph, root_user, trust_th
                 new_chain.append(user)
                 trust_queue.append(new_chain)
             if user in users_to_docs:
-                doc, ranking = users_to_docs[user]
-                return new_chain, doc, ranking
+                doc, ranking, sim = users_to_docs[user]
+                if best_most_trusted is None or\
+                        (len(best_most_trusted[0]) == len(new_chain) and best_most_trusted[3] < sim):
+                    best_most_trusted = new_chain, doc, ranking, sim
+                elif best_most_trusted is not None and len(best_most_trusted[0]) < len(new_chain):
+                    return best_most_trusted[:3]
+    if best_most_trusted is None:
+        return None
+    else:
+        return best_most_trusted[:3]
 
 
 def get_most_similar_from_trusted(similar_docs, trust_graph, root_user, trust_threshold):

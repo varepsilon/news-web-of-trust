@@ -41,7 +41,6 @@ class SimilarDocsAccessor(Resource):
     def put(self):
         doc = request.form['url']
         similar = docs.get_similar_docs(doc, 10)
-        print('THE SIM', similar)
         root_user = int(request.form['user'])
         # trusted_1 = docs.get_most_trusted_from_similar(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
         trusted_1 = docs.get_most_similar_from_trusted(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
