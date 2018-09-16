@@ -27,13 +27,20 @@ class Voter(Resource):
         except:
             return 'Failed!\n{}'.format(traceback.format_exc())
 
+def format_friends_chain(chain):
+    name = IDS_TO_USERS[chain[-1]]
+    if len(chain) == 2:
+        return name
+    else:
+        return '{} friend of {}'.format(name, format_friends_chain(chain[:-1]))
+
 def format_result(result):
     chain, doc, ranking = result
     return {
             'url': doc['url'],
             'content': doc['content'],
             'status': 'fake' if ranking == 0 else 'real',
-            'friends': [IDS_TO_USERS[id_] for id_ in chain]
+            'friends': format_friends_chain(chain),
     }
 
 
