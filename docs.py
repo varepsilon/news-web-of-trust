@@ -68,7 +68,6 @@ def get_similar_docs(this_doc_url, top_n):
         sim = doc_to_vec.sim(v1, v2)
         heapq.heappush(h, (sim, key))
     top = heapq.nlargest(top_n, h)
-    print('TOP', top)
     return [(sim, {
         'doc': document_storage[key]['doc'].toJSON(),
         'ranking': document_storage[key]['ranking'],
@@ -78,7 +77,6 @@ def get_similar_docs(this_doc_url, top_n):
 def get_most_trusted_from_similar(similar_docs, trust_graph, root_user, trust_threshold):
     '''returns triplet (user chain, doc_info, ranking) or None'''
     users_to_docs = dict()
-    print('SIM', similar_docs)
     for sim, doc in similar_docs[::-1]:
         for user, ranking in doc['ranking'].items():
             users_to_docs[user] = (doc['doc'], ranking)
@@ -120,18 +118,12 @@ def get_most_similar_from_trusted(similar_docs, trust_graph, root_user, trust_th
                 trust_queue.append(new_chain)
                 user_to_chain[user] = new_chain
 
-    print('U2C', user_to_chain)
-
     for sim, doc_and_ranking in similar_docs:
-        print('RANKING', doc_and_ranking['ranking'])
-        print('PROCESSED', processed)
         intersection = processed.intersection(doc_and_ranking['ranking'].keys())
         if intersection:
-            print('INTERSECTED')
             doc = doc_and_ranking['doc']
             ranking = doc_and_ranking['ranking']
-            print("DNR", doc_and_ranking)
             relevant_chains = (user_to_chain[user] for user in intersection)
             lens_and_chains = map(lambda chain: (len(chain), chain), relevant_chains)
             len_, chain  = max(lens_and_chains)
-            return chain, doc, ranking
+            return chain, doc, ranking[chain[-1]]

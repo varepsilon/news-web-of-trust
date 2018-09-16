@@ -62,7 +62,7 @@ function ShowNewResults(data) {
 		<div class='snippet ${data.doc[0].status}_snippet'>
 		<a href="${data.doc[0].url}">
 		<p>${data.doc[0].content}</p>
-		<p class='credit'><i>${data.doc[0].friends[friends.length-1]}</i></p>
+		<p class='credit'><i>${data.doc[0].friends[data.doc[0].friends.length-1]}</i></p>
 		</a>
 		</div>`
 		markup_result += markup_1;
@@ -71,7 +71,7 @@ function ShowNewResults(data) {
 			`<div class='snippet ${data.doc[1].status}_snippet'>
 			<a href="${data.doc[1].url}">
 			<p>${data.doc[1].content}</p>
-			<p class='credit'><i>${data.doc[1].friends[friends.length-1]}</i></p>
+			<p class='credit'><i>${data.doc[1].friends[data.doc[1].friends.length-1]}</i></p>
 			</a>
 			</div>
 			</div>`
