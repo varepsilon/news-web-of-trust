@@ -40,7 +40,7 @@ def format_result(result):
 class SimilarDocsAccessor(Resource):
     def put(self):
         doc = request.form['url']
-        similar = docs.get_similar_docs(doc, 1000)
+        similar = docs.get_similar_docs(doc, 10)
         print('THE SIM', similar)
         root_user = int(request.form['user'])
         trusted_1 = docs.get_most_trusted_from_similar(similar, TRUST_GRAPH, root_user, TRUST_THRESHOLD)
