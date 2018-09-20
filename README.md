@@ -1,4 +1,4 @@
-# The X Fakes
+# The X Fakes (HackZurich 2018)
 Get your news verified by the people you trust
 
 ## Prerequisites
